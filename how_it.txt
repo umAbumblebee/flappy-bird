@@ -1,0 +1,22 @@
+here we would like to have the initial display with an overlay giving option for the use to start withbuttons
+then we would like to actively listen once the button is presed
+                          #there will be two distinct section
+                             1)a bird object that will actively be listening and move accordingly on click or not
+                             2)column generator->generates objects in some interval on the game starts
+                             3)evaluator that handles the position of hte bird  and columns 
+                                      #checks if the bird and column collided(on same y and  x locations)
+                                      #checks if the the columns passed some position(the x position of the birds) in the canvas
+                          #and there will be handling the highscore
+oncollioin there will be an overlay displaying if the user wants to play again
+
+
+                       <!-- optionally check if the user is joining for the first time or not -->
+                              and display different welcoming message
+
+
+referenceFrame will make the animation you inted to synch with teh frame fandering of hte 
+of the browser,and it will make it smoother,whilst using setInterval makes a gliching animation
+
+
+instead of tryin to access the x and y locations of the bird and the columns via js dom,
+try using getBoundingClientRect  method 
