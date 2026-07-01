@@ -12,12 +12,25 @@
     position: absolute;
     top: 150px;
     left: 50px;
-    height: 8rem;
+    height: 6rem;
     z-index: 10;
+    object-fit: contain;
     /* Adding top to the transition makes it glide instead of jump */
     transition: top 0.1s linear, transform 0.1s ease-in-out;
 }
 
+.ground {
+    position: absolute;
+    bottom: 100px; /* Adjust to sit exactly on your ground */
+    background-color: #2ecc71; /* Or use a background-image */
+    border: 2px solid #14532d;
+    z-index: 4; /* Keeps them behind the bird but above the background */
+}
+
+.score{
+    /* sth */
+    display: inline;
+}
 .overlay {
     /* background-color:antiquewhite; */
     position: absolute;

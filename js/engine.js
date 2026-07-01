@@ -1,14 +1,20 @@
 // --- Configuration ---
 const bird = document.querySelector('.bird');
 const columnsContainer = document.getElementById('columns');
+const groundContainer=document.getElementById('ground')
+let score = 0;
+let highScore=0
 
 let all_pairs = [];
 let animatedFrameId = null;
 let game_started = false;
 let game_over = false;
-let score = 0;
+
 let position = 150;
 let velocity = 0;
+
+let decorations = [];
+let decoSpawnCount = 0;
 
 const spawnRate = 120;
 let frameCount = 0;
@@ -17,6 +23,8 @@ const birdX = 50;
 const gravity = 0.5;
 const jumpForce = -8;
 const pipeSpeed = 5;
+const roof=50
+const floor=500
 
 class ColumnPair {
     constructor() {
@@ -39,12 +47,16 @@ class ColumnPair {
         this.element.style.left = this.x + 'px';
         columnsContainer.appendChild(this.element);
     }
-
+    
+    /**returns if it went out of the page 
+     * @returns {boolean} if element left the page
+    */
     update() {
         this.x -= pipeSpeed;
         this.element.style.left = this.x + 'px';
         return this.x < -60;
     }
+    
 
     isColliding(birdElement) {
         const birdRect = birdElement.getBoundingClientRect();
@@ -67,6 +79,35 @@ class ColumnPair {
     }
 }
 
+class GroundDecorator {
+    constructor() {
+        this.element = document.createElement('div');
+        this.element.className = 'ground'; // New CSS class
+        
+        // Randomize the shape/type of the decoration
+        this.element.style.width = (Math.random() * 40 + 20) + 'px';
+        this.element.style.height = (Math.random() * 30 + 10) + 'px';
+        
+        
+       this.x = window.innerWidth;
+       this.element.style.left = this.x + 'px';
+       this.element.style.bottom = '100px'; // Set this to match your ground height
+       this.element.style.position = 'absolute';
+        
+       scoreContainer.appendChild(this.element)
+        
+    }
+
+    update() {
+        this.x -= pipeSpeed; // Use the same speed as pipes for perfect sync
+        this.element.style.left = this.x + 'px';
+        return this.x < -100; // Remove when off-screen
+    }
+}
+
+/**
+ * removes all columns from the page,and empties all_pairs
+ */
 function resetGame() {
     if (animatedFrameId) cancelAnimationFrame(animatedFrameId);
     all_pairs.forEach(pair => pair.element.remove());
@@ -94,6 +135,8 @@ function game_loop() {
     // Ground/Ceiling Check
     if (position < 0 || position > gameHeight - 40) {
         endGame();
+        //display the game over overlay or change it's display property to visible by setting it 
+        //initially none
         return;
     }
 
@@ -101,6 +144,20 @@ function game_loop() {
     if (frameCount >= spawnRate) {
         all_pairs.push(new ColumnPair());
         frameCount = 0;
+    }
+
+    decoSpawnCount++;
+    if (decoSpawnCount >= 200) {
+        decorations.push(new GroundDecorator());
+        decoSpawnCount = 0;
+    }
+
+    // Update Decorations
+    for (let i = decorations.length - 1; i >= 0; i--) {
+        if (decorations[i].update()) {
+            decorations[i].element.remove();
+            decorations.splice(i, 1);
+        }
     }
 
     for (let i = all_pairs.length - 1; i >= 0; i--) {
@@ -122,14 +179,35 @@ function game_loop() {
             score += 1;
             pair.scored = true;
             console.log('Score:', score);
+
+            if (score>highScore){
+                highScore=score
+                document.querySelector('.score > h1').innerHTML=`${highScore}`
+            }
+            //get the score class and make the innner HTML to this score
+            document.querySelector('.score>h2').innerHTML=`${score}`
+            
         }
     }
+
     animatedFrameId = requestAnimationFrame(game_loop);
 }
 
-function endGame() {
+function stopGame() {
+    if (animatedFrameId) {
+        cancelAnimationFrame(animatedFrameId);
+        animatedFrameId = null;
+    }
     game_over = true;
     game_started = false;
+    console.log('Game stopped');
+}
+
+/**
+ * stops the game,and resets the values back
+ */
+function endGame() {
+    stopGame();
     console.log('Final Score:', score);
 }
 
@@ -141,5 +219,8 @@ document.addEventListener('keydown', (e) => {
         } else {
             velocity = jumpForce;
         }
+    }
+    if (e.key === 'Escape') {
+        stopGame();
     }
 });
