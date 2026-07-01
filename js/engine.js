@@ -23,8 +23,8 @@ const birdX = 50;
 const gravity = 0.5;
 const jumpForce = -8;
 const pipeSpeed = 5;
-const roof=50
-const floor=500
+const roof = 0;
+const floor = gameHeight - 140;
 
 class ColumnPair {
     constructor() {
@@ -32,11 +32,17 @@ class ColumnPair {
         this.element.className = 'pair';
         this.scored = false;
 
-        this.gapSize = 160; // Increased gap slightly for easier passing
-        const minHeight = 50;
+        this.gapSize = 20;
+        const minHeight = 80;
+        
+        // Define the maximum space available for the pipe (the ground level)
+        const groundLevel = gameHeight - 140; 
 
-        this.topHeight = Math.floor(Math.random() * (gameHeight - this.gapSize - 2 * minHeight)) + minHeight;
-        this.bottomHeight = gameHeight - this.topHeight - this.gapSize;
+        // 1. Calculate random top height
+        this.topHeight = Math.floor(Math.random() * (groundLevel - this.gapSize - 2 * minHeight)) + minHeight;
+        
+        // 2. The bottom pipe height is the remaining space down to the ground
+        this.bottomHeight = groundLevel - this.topHeight - this.gapSize;
 
         this.element.innerHTML = `
             <div class="top-pipe" style="height: ${this.topHeight}px"></div>
@@ -59,24 +65,32 @@ class ColumnPair {
     
 
     isColliding(birdElement) {
-        const birdRect = birdElement.getBoundingClientRect();
-        const pipeRect = this.element.getBoundingClientRect();
+    const birdRect = birdElement.getBoundingClientRect();
+    
+    // 1. Target the specific pipe elements inside the pair
+    const topPipe = this.element.querySelector('.top-pipe');
+    const bottomPipe = this.element.querySelector('.bottom-pipe');
+    
+    const topRect = topPipe.getBoundingClientRect();
+    const bottomRect = bottomPipe.getBoundingClientRect();
 
-        // Shrink the bird's hitbox by 4px on all sides so it feels "fair"
-        const bLeft = birdRect.left + 6;
-        const bRight = birdRect.right - 6;
-        const bTop = birdRect.top + 6;
-        const bBottom = birdRect.bottom - 6;
+    // 2. Define a slightly smaller hitbox for the bird (for fairness)
+    const bLeft = birdRect.left + 6;
+    const bRight = birdRect.right - 6;
+    const bTop = birdRect.top + 6;
+    const bBottom = birdRect.bottom - 6;
 
-        // Check if bird is within the pipe's horizontal range
-        if (bRight > pipeRect.left && bLeft < pipeRect.right) {
-            // Check if bird is hitting top pipe OR bottom pipe
-            if (bTop < pipeRect.top + this.topHeight || bBottom > pipeRect.top + this.topHeight + this.gapSize) {
-                return true;
-            }
-        }
-        return false;
-    }
+    // 3. Helper function to check overlap for a single pipe
+    const isHitting = (rect) => {
+        return bRight > rect.left && 
+               bLeft < rect.right && 
+               bBottom > rect.top && 
+               bTop < rect.bottom;
+    };
+
+    // 4. Return true if hitting either the top OR the bottom pipe
+    return isHitting(topRect) || isHitting(bottomRect);
+}
 }
 
 class GroundDecorator {
@@ -85,8 +99,8 @@ class GroundDecorator {
         this.element.className = 'ground'; // New CSS class
         
         // Randomize the shape/type of the decoration
-        this.element.style.width = (Math.random() * 40 + 20) + 'px';
-        this.element.style.height = (Math.random() * 30 + 10) + 'px';
+        this.element.style.width = 80 + 'px';
+        this.element.style.height = 20 + 'px';
         
         
        this.x = window.innerWidth;
@@ -94,7 +108,7 @@ class GroundDecorator {
        this.element.style.bottom = '100px'; // Set this to match your ground height
        this.element.style.position = 'absolute';
         
-       scoreContainer.appendChild(this.element)
+       groundContainer.appendChild(this.element)
         
     }
 
@@ -133,7 +147,8 @@ function game_loop() {
     bird.style.transform = `rotate(${velocity * 3}deg)`;
 
     // Ground/Ceiling Check
-    if (position < 0 || position > gameHeight - 40) {
+    if (position <= roof || position >= floor) {
+        
         endGame();
         //display the game over overlay or change it's display property to visible by setting it 
         //initially none
@@ -147,7 +162,7 @@ function game_loop() {
     }
 
     decoSpawnCount++;
-    if (decoSpawnCount >= 200) {
+    if (decoSpawnCount >= 8) {
         decorations.push(new GroundDecorator());
         decoSpawnCount = 0;
     }
@@ -182,10 +197,9 @@ function game_loop() {
 
             if (score>highScore){
                 highScore=score
-                document.querySelector('.score > h1').innerHTML=`${highScore}`
             }
             //get the score class and make the innner HTML to this score
-            document.querySelector('.score>h2').innerHTML=`${score}`
+            document.querySelector('#score>h2').innerHTML=`score: ${score}`
             
         }
     }
@@ -208,6 +222,7 @@ function stopGame() {
  */
 function endGame() {
     stopGame();
+    document.querySelector('#score>h1').innerHTML=`highscore:${highScore}`
     console.log('Final Score:', score);
 }
 
