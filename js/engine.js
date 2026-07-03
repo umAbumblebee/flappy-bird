@@ -1,5 +1,5 @@
 // --- Configuration ---
-const bird = document.querySelector('.bird');
+const bird = document.querySelector('.bird') || document.querySelector('game-image');
 const columnsContainer = document.getElementById('columns');
 const groundContainer=document.getElementById('ground')
 let score = 0;

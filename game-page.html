@@ -1,25 +1,37 @@
-<html>
-    <title>flappy bird</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
     <link rel="stylesheet" href="css/styles.css">
-  <body>
-   <!-- Wrap your game content in a container -->
-   
-        <div class="game-container">
-            <div id="score">
-                 <h1><span>high score : 0</span></h1>
-                 <h2>score  _ _</h2>
-            </div> 
+</head>
+<body>
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <!-- The Game Canvas (Required for engine.js) -->
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-            <div id="columns">
-                
-            </div>
-            <img src="assets/images/bird.png" class="bird">
-        </div>
+        <!-- UI / Score Overlay -->
+        <div id="score">
+            <h1><span>High Score: 0</span></h1>
+            <h2>Score: _ _</h2>
+        </div> 
 
-    <div id="ground">
-       
+        <!-- Pipe Columns -->
+        <div id="columns"></div>
+        
+        <!-- Custom Player Component -->
+        <game-image src="/assets/images/bird.png" trim="true"></game-image>
     </div>
-    <script src="/js/engine.js"></script>
 
+    <!-- Ground Boundary -->
+    <div id="ground"></div>
+
+    <!-- Scripts -->
+    <!-- Load the custom web component first -->
+    <script type="module" src="/image-module/image.js"></script>
+    <!-- Load the game logic -->
+    <script src="/js/engine.js"></script>
 </body>
 </html>
